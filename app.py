@@ -67,11 +67,6 @@ class ChatRequest(BaseModel):
 def home():
     return {"message": "Marina English Chatbot API is running!"}
 
-# Temporary route for testing the rate limiter
-@app.get("/rate-test")
-@limiter.limit("10/minute")
-def rate_test(request: Request):
-    return {"message": "OK"}
 
 # Main chatbot route
 @app.post("/chat")
