@@ -78,6 +78,20 @@ def chat(request: Request, body: ChatRequest):
         question = body.question
         language = body.language
 
+                # Translate Russian questions to English for knowledge retrieval
+        search_question = question
+
+        if language == "ru":
+            translation_response = client.responses.create(
+                model="gpt-5-mini",
+                instructions=(
+                    "Translate the user's question from Russian to English. "
+                    "Return only the English translation. Do not answer the question."
+                ),
+                input=question
+            )
+            search_question = translation_response.output_text
+
         # Get Marina's knowledge from Supabase
         response = (
             supabase.table("knowledge_items")
@@ -101,7 +115,7 @@ def chat(request: Request, body: ChatRequest):
 
         # Remove punctuation from the question
         clean_question = (
-            question.lower()
+            search_question.lower()
             .replace("?", "")
             .replace("!", "")
             .replace(".", "")
