@@ -111,6 +111,29 @@ def chat(request: Request, body: ChatRequest):
             word for word in clean_question.split()
             if word not in stop_words
         }
+                # Add related words so natural questions can find the right knowledge
+        synonyms = {
+            "often": {"frequency", "weekly", "week"},
+            "frequently": {"frequency", "weekly", "week"},
+            "classes": {"lessons", "lesson"},
+            "class": {"lesson", "lessons"},
+            "book": {"books", "materials"},
+            "books": {"book", "materials"},
+            "material": {"materials", "books"},
+            "materials": {"material", "books"},
+            "cancel": {"cancellation", "reschedule"},
+            "cancellation": {"cancel", "reschedule"},
+            "reschedule": {"cancellation", "cancel"},
+            "trial": {"assessment", "level"},
+            "level": {"assessment", "trial"},
+        }
+
+        expanded_words = set(question_words)
+
+        for word in question_words:
+            expanded_words.update(synonyms.get(word, set()))
+
+        question_words = expanded_words
 
         # Find relevant knowledge records
         relevant_items = []
@@ -123,10 +146,20 @@ def chat(request: Request, body: ChatRequest):
                 f"{item['keywords'] or ''}"
             ).lower()
 
-            # Give the record one point for every matching word
+            # Match complete words instead of parts of words
+            searchable_words = set(
+                searchable_text
+                .replace(",", " ")
+                .replace(".", " ")
+                .replace(":", " ")
+                .replace("/", " ")
+                .replace("-", " ")
+                .split()
+            )
+
             score = sum(
                 1 for word in question_words
-                if word in searchable_text
+                if word in searchable_words
             )
 
             if score > 0:
@@ -154,19 +187,45 @@ def chat(request: Request, body: ChatRequest):
             model="gpt-5-mini",
 
             instructions="""
-    You are Marina's English-teaching website assistant.
+You are the chatbot for Marina's English-teaching website.
 
-    Answer questions using ONLY the knowledge provided.
+Answer the student's specific question using ONLY the provided knowledge.
 
-    Do not invent courses, books, policies, prices, schedules,
-    qualifications, or other information.
+Keep answers friendly, natural, conversational, and suitable for a website chatbot.
 
-    If the answer is not contained in the knowledge,
-    say that you don't have that information and suggest
-    contacting Marina.
+RESPONSE LENGTH:
+- For normal questions, aim for about 60-120 words.
+- Prefer 1-3 short paragraphs.
+- Use a short list only when it makes the answer easier to read.
+- If the user explicitly asks for details, a full list, or a comparison, you may give a longer answer.
+- Do not dump all related knowledge into the response.
 
-    Keep answers friendly, conversational, and concise.
-    """,
+RELEVANCE:
+- Answer the student's actual question first.
+- Use only the knowledge that is relevant to that question.
+- Do not add unrelated details just because they appear in the provided knowledge.
+- You may briefly mention a closely related course when it is genuinely useful. Keep cross-promotion to one short sentence and keep the student's original question as the main focus.
+
+ACCURACY:
+- Do not invent courses, books, materials, policies, prices, schedules, availability, qualifications, or other information.
+- A2 is Marina's minimum entry level, not a General English course she teaches.
+- Marina's General English courses are B1, B2, C1, and C2.
+- English for IT requires at least B2 General English.
+- Do not promise IELTS scores, Cambridge exam results, or progress within a fixed amount of time.
+
+MISSING INFORMATION:
+- If the provided knowledge contains the answer, answer it directly.
+- Do not tell the student to contact Marina when the answer is already available.
+- If the requested information is genuinely missing, say that you don't have that information and suggest contacting Marina.
+- Never invent available lesson times.
+
+STYLE:
+- Avoid overly formal, academic, or sales-heavy language.
+- Avoid repetitive AI-style wording.
+- Avoid constructions such as "It's not X, it's Y", "X isn't about... It's about...", and "This isn't just...".
+- Do not automatically end every response with an invitation to contact Marina.
+- A brief useful follow-up question is allowed when appropriate.
+""",
 
             input=f"""
     MARINA'S KNOWLEDGE:
@@ -188,3 +247,5 @@ def chat(request: Request, body: ChatRequest):
             status_code=500,
             detail="Unable to process the request right now."
         )
+
+    
