@@ -150,6 +150,11 @@ def chat(request: Request, body: ChatRequest):
             expanded_words.update(synonyms.get(word, set()))
 
         question_words = expanded_words
+        # Detect questions asking for the complete course list
+        course_list_request = (
+            "course" in question_words
+            or "courses" in question_words
+        )
 
         # Find relevant knowledge records
         relevant_items = []
@@ -187,10 +192,16 @@ def chat(request: Request, body: ChatRequest):
             reverse=True
         )
 
-        # Keep only the 8 best matches
-        knowledge_items = [
-            item for score, item in relevant_items[:8]
-        ]
+                # Select knowledge for the response
+        if course_list_request:
+            knowledge_items = [
+                item for item in all_items
+                if item["category"] == "course"
+            ]
+        else:
+            knowledge_items = [
+                item for score, item in relevant_items[:8]
+            ]
 
         # Convert selected knowledge into text for OpenAI
         knowledge_text = "\n\n".join(
