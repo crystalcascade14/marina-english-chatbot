@@ -51,6 +51,7 @@ app.add_middleware(
 # Describe what a chatbot request contains
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=300)
+    language: str = "en"
 
     @field_validator("question")
     @classmethod
@@ -75,6 +76,7 @@ def chat(request: Request, body: ChatRequest):
     try:
         # Get the student's question
         question = body.question
+        language = body.language
 
         # Get Marina's knowledge from Supabase
         response = (
@@ -181,13 +183,20 @@ def chat(request: Request, body: ChatRequest):
             f"Topic: {item['topic']}\n{item['content']}"
             for item in knowledge_items
         )
+        if language == "ru":
+            language_instruction = "Answer in Russian."
+        else:
+            language_instruction = "Answer in English."
 
         # Ask OpenAI to answer using Marina's knowledge
         ai_response = client.responses.create(
             model="gpt-5-mini",
 
-            instructions="""
+            instructions=f"""
 You are the chatbot for Marina's English-teaching website.
+
+LANGUAGE:
+{language_instruction}
 
 Answer the student's specific question using ONLY the provided knowledge.
 
