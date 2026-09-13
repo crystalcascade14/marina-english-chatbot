@@ -78,18 +78,25 @@ def chat(request: Request, body: ChatRequest):
         question = body.question
         language = body.language
 
-                # Translate Russian questions to English for knowledge retrieval
+                        # Translate Russian and Ukrainian questions to English for knowledge retrieval
         search_question = question
 
-        if language == "ru":
+        if language in ["ru", "uk"]:
+
+            if language == "ru":
+                source_language = "Russian"
+            else:
+                source_language = "Ukrainian"
+
             translation_response = client.responses.create(
                 model="gpt-5-mini",
                 instructions=(
-                    "Translate the user's question from Russian to English. "
+                    f"Translate the user's question from {source_language} to English. "
                     "Return only the English translation. Do not answer the question."
                 ),
                 input=question
             )
+
             search_question = translation_response.output_text
 
         # Get Marina's knowledge from Supabase
@@ -210,6 +217,8 @@ def chat(request: Request, body: ChatRequest):
         )
         if language == "ru":
             language_instruction = "Answer in Russian."
+        elif language == "uk":
+           language_instruction = "Answer in Ukrainian."
         else:
             language_instruction = "Answer in English."
 
@@ -231,6 +240,17 @@ When answering in Russian:
 - Write "подготовка к IELTS", not "IELTS подготовка".
 - Do not use constructions such as "Miro-based" in Russian. Write them naturally, for example: "курс проходит на доске Miro" or "материалы курса организованы в Miro".
 - Keep official course and exam names in English when appropriate, such as Business English, English for IT, B2 First (FCE), and C1 Advanced (CAE).
+
+When answering in Ukrainian:
+- Write natural, idiomatic Ukrainian. Do not translate English or Russian phrases word-for-word.
+- Use correct Ukrainian grammar and vocabulary.
+- Avoid Russianisms and Russian calques.
+- Translate educational terms naturally when appropriate.
+- Use "підготовка до IELTS", not unnatural word-for-word constructions.
+- Use "співбесіда" for a job interview and "пробна співбесіда" or "тренувальна співбесіда" for a mock interview when appropriate.
+- Do not use unnatural constructions such as "Miro-based" in Ukrainian. Describe them naturally, for example, "заняття проходять на інтерактивній дошці Miro".
+- Keep official course and exam names in English when appropriate, such as Business English, English for IT, IELTS, FCE / B2 First, and CAE / C1 Advanced.
+
 
 Answer the student's specific question using ONLY the provided knowledge.
 
