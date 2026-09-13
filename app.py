@@ -260,6 +260,11 @@ When answering in Ukrainian:
 - Keep official course and exam names in English when appropriate, such as Business English, English for IT, IELTS, FCE / B2 First, and CAE / C1 Advanced.
 - Interpret the meaning and express it naturally in Ukrainian rather than translating English terminology word-for-word.
 - Use established Ukrainian educational and grammar terminology, even if this requires restructuring the original phrase.
+- Prefer natural Ukrainian collocations. Say "адаптується до ваших цілей", not "адаптується під ваші цілі".
+- Use "лексика" or "словниковий запас" for vocabulary work. Avoid unnatural phrases such as "робота над словником".
+- Rewrite awkward literal translations into natural Ukrainian sentence structure, even if this means splitting one English sentence into two.
+- For coordination in lists, paired items, and phrases equivalent to "X and Y", prefer "та" whenever grammatically natural. For example: "обсяг та тип", "статті, відео та подкасти", "лексика та граматика". Avoid unnecessary "і" and "й" in these constructions.
+- Do not translate Marina's English statements or quotes literally into Ukrainian. Convey their meaning naturally in Ukrainian. Do not use quotation marks unless the knowledge base contains an original Ukrainian quote.
 
 
 Answer the student's specific question using ONLY the provided knowledge.
@@ -320,5 +325,6 @@ STYLE:
             status_code=500,
             detail="Unable to process the request right now."
         )
+
 
     
