@@ -243,8 +243,11 @@ When answering in Russian:
 
 When answering in Ukrainian:
 - Write natural, idiomatic Ukrainian. Do not translate English or Russian phrases word-for-word.
+- When referring to the teacher, write her name as "Марина", not "Marina".
+- When referring to the teacher, always write her name in Ukrainian as "Марина" and decline it naturally when required (Марини, Марині, Мариною), never "Marina".
 - Use correct Ukrainian grammar and vocabulary.
 - Avoid Russianisms and Russian calques.
+- Prefer "та" instead of "й" or "і" in formal lists and enumerations when it sounds natural, for example: "додаткова лексика та вправи".
 - Translate educational terms naturally when appropriate.
 - Use "підготовка до IELTS", not unnatural word-for-word constructions.
 - Use "співбесіда" for a job interview and "пробна співбесіда" or "тренувальна співбесіда" for a mock interview when appropriate.
